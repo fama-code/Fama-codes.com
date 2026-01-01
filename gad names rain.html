@@ -1,0 +1,277 @@
+
+<!DOCTYPE html>
+<html lang="ar"> <!-- Set language to Arabic -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divine Cascade: 99 Names of Allah</title>
+    <!-- Google Fonts: Amiri for beautiful Arabic typography -->
+    <!-- This link requires internet for initial load, but browser caches it. -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- General Body & Container Styling --- */
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+            background-color: #0d1a26; /* Deep, serene dark blue */
+            font-family: 'Amiri', serif; /* Beautiful Arabic font */
+            color: #e0e0e0; /* Light grey text */
+            height: 100vh; /* Ensure body takes full viewport height */
+            display: flex; /* For centering the main content */
+            justify-content: center;
+            align-items: center;
+            flex-direction: column; /* Stack vertically */
+            position: relative; /* For background elements */
+        }
+
+        /* --- Background Rain Container --- */
+        .background-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Clip falling elements */
+            pointer-events: none; /* Allow interaction with elements below */
+            z-index: 0;
+        }
+
+        /* --- Main Content Container --- */
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 10; /* Ensure main content is above rain */
+        }
+
+        /* --- Main Name of Allah Styling --- */
+        #mainName {
+            font-size: 8em; /* Large Arabic text */
+            font-weight: 700;
+            color: #ffffff;
+            /* Initial subtle pulse glow */
+            text-shadow: 0 0 15px rgba(0, 190, 255, 0.4);
+            transition: text-shadow 0.6s ease-out, opacity 0.5s ease-out, transform 0.5s ease-out; /* Smooth transitions */
+            direction: rtl; /* Right-to-left for Arabic */
+            margin: 0;
+            line-height: 1; /* Adjust line height for perfect centering */
+            animation: mainNamePulse 3s infinite alternate ease-in-out; /* Default subtle pulse */
+        }
+
+        /* --- Main Name Pulse Animation --- */
+        @keyframes mainNamePulse {
+
+            0% { text-shadow: 0 0 15px rgba(0, 190, 255, 0.4); }
+            100% { text-shadow: 0 0 25px rgba(0, 220, 255, 0.6); }
+        }
+
+        /* --- Main Name Transition Classes --- */
+        #mainName.fade-out-up {
+            opacity: 0;
+            transform: translateY(-50px);
+            animation: none; /* Stop pulse during transition */
+        }
+        #mainName.fade-in-down {
+            opacity: 1;
+            transform: translateY(0);
+            animation: mainNamePulse 3s infinite alternate ease-in-out; /* Resume pulse after transition */
+        }
+
+        /* --- Next Name Button Styling --- */
+        #nextNameBtn {
+            background-color: #00e6e6; /* Bright cyan button */
+            color: #0d1a26; /* Dark text for contrast */
+            padding: 15px 35px;
+            border: none;
+            border-radius: 50px; /* Pill-shaped */
+            font-family: 'Amiri', serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 5px 20px rgba(0, 230, 230, 0.4);
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+            margin-top: 30px;
+        }
+
+        #nextNameBtn:hover {
+            background-color: #00b3b3;
+            box-shadow: 0 8px 25px rgba(0, 230, 230, 0.6);
+        }
+
+        #nextNameBtn:active {
+            transform: scale(0.97); /* Push-in effect on click */
+            box-shadow: 0 2px 10px rgba(0, 230, 230, 0.5);
+        }
+
+        /* --- Falling Name Styling (The "Rain") --- */
+        .falling-name {
+            position: absolute;
+            top: -10%; /* Start off-screen at the top */
+            color: rgba(255, 255, 255, 0.7); /* Slightly transparent white */
+            text-shadow: 0 0 10px rgba(0, 190, 255, 0.3); /* Subtle blue glow */
+            direction: rtl;
+            white-space: nowrap; /* Keep name on one line */
+            pointer-events: none; /* Crucial: ensures it doesn't block clicks */
+            animation: fallAndFade linear forwards; /* Animation controlled by JS */
+        }
+
+        /* --- Falling Name Animation --- */
+        @keyframes fallAndFade {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.8);
+            }
+            20% {
+                opacity: 0.4; /* Fade in */
+            }
+            80% {
+                opacity: 0.2; /* Fade out */
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(110vh) scale(1.2); /* Fall off-screen bottom */
+            }
+        }
+
+        /* --- Responsive Adjustments --- */
+        @media (max-width: 1024px) {
+            #mainName {
+                font-size: 7em;
+            }
+            #nextNameBtn {
+                font-size: 1.3em;
+                padding: 12px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #mainName {
+                font-size: 5em;
+            }
+            #nextNameBtn {
+                font-size: 1.1em;
+                padding: 10px 25px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #mainName {
+                font-size: 3.5em;
+            }
+            #nextNameBtn {
+                font-size: 0.9em;
+                padding: 8px 20px;
+            }
+            .falling-name {
+                font-size: 1.5em !important; /* Override JS for smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-rain" id="backgroundRain"></div>
+
+    <div class="container">
+        <!-- The central Name of Allah -->
+        <h1 id="mainName">
+            الله
+        </h1>
+
+        <!-- Button to reveal next name -->
+        <button id="nextNameBtn">
+            Reveal
+
+Next Name <span style="font-size: 0.8em;">(اسم جديد)</span>
+        </button>
+    </div>
+
+    <script>
+        const mainNameElement = document.getElementById('mainName');
+        const nextNameBtn = document.getElementById('nextNameBtn');
+        const backgroundRain = document.getElementById('backgroundRain');
+
+        // Full list of 99 Names of Allah (Asma ul Husna) in Arabic
+        // IMPORTANT: I've included a shortened list for demonstration.
+        // For your viral project, you'll want to use the full 99 names!
+        // You can find comprehensive lists online.
+        const namesOfAllah = [
+            "الله", "الرحمن", "الرحيم", "الملك", "القدوس", "السلام", "المؤمن",
+            "المهيمن", "العزيز", "الجبار", "المتكبر", "الخالق", "البارئ", "المصور",
+            "الغفار", "القهار", "الوهاب", "الرزاق", "الفتاح", "العليم", "القابض",
+            "الباسط", "الخافض", "الرافع", "المعز", "المذل", "السميع", "البصير",
+            "الحكم", "العدل", "اللطيف", "الخبير", "الحليم", "العظيم", "الغفور",
+            "الشكور", "العلي", "الكبير", "الحفيظ", "المقيت", "الحسيب", "الجليل",
+            "الكريم", "الرقيب", "المجيب", "الواسع", "الحكيم", "الودود", "المجيد",
+            "الباعث", "الشهيد", "الحق", "الوكيل", "القوي", "المتين", "الولي",
+            "الحميد", "المحصي", "المبدئ", "المعيد", "المحيي", "المميت", "الحي",
+            "القيوم", "الواجد", "الماجد", "الواحد", "الأحد", "الصمد", "القادر",
+            "المقتدر", "المقدم", "المؤخر", "الأول", "الآخر", "الظاهر", "الباطن",
+            "الوالي", "المتعالي", "البر", "التواب", "المنتقم", "العفو", "الرؤوف",
+            "مالك الملك", "ذو الجلال والإكرام", "المقسط", "الجامع", "الغني", "المغني",
+            "المانع", "الضار", "النافع", "النور", "الهادي", "البديع", "الباقي",
+            "الوارث", "الرشيد", "الصبور"
+        ];
+
+        let currentIndex = 0;
+
+        // --- Function to Display the Next Name ---
+        function displayNextName() {
+            // Add fade-out class to current name
+            mainNameElement.classList.add('fade-out-up');
+            mainNameElement.classList.remove('fade-in-down'); // Ensure this is not present
+
+            // After fade-out, update content and fade in new name
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % namesOfAllah.length;
+                mainNameElement.textContent = namesOfAllah[currentIndex];
+                
+                mainNameElement.classList.remove('fade-out-up');
+                mainNameElement.classList.add('fade-in-down');
+            }, 500); // Matches CSS transition duration
+        }
+
+        // --- Function to Create a Falling Name (Rain Effect) ---
+        function createFallingName() {
+            const fallingName = document.createElement('div');
+            fallingName.classList.add('falling-name');
+
+            // Randomly pick a name from the list
+            const randomName = namesOfAllah[Math.floor(Math.random() * namesOfAllah.length)];
+            fallingName.textContent = randomName;
+
+            // Random position, size, and animation duration
+            const left = Math.random() * 95; // 0% to 95% across the screen
+            const fontSize = Math.random() * (2.5 - 1.5) + 1.5; // 1.5em to 2.5em
+            const animationDuration = Math.random() * (15 - 8) + 8; // 8s to 15s
+            const animationDelay = Math.random() * (0 - -5) + -5; // Start some off-screen
+
+            fallingName.style.left = `${left}vw`;
+            fallingName.style.fontSize = `${fontSize}em`;
+            fallingName.style.animationDuration = `${animationDuration}s`;
+            fallingName.style.animationDelay = `${animationDelay}s`; // Stagger starts
+
+            backgroundRain.appendChild(fallingName);
+
+            // Remove falling name after its animation ends to prevent DOM clutter
+            fallingName.addEventListener('animationend', () => {
+                fallingName.r
+
+emove();
+            });
+        }
+
+        // --- Event Listener for Button Click ---
+        nextNameBtn.addEventListener('click', displayNextName);
+
+        // --- Initial Load ---
+        mainNameElement.classList.add('fade-in-down'); // Make initial name visible
+        
+        // Start the background rain effect
+        setInterval(createFallingName, 400); // Create a new falling name every 400ms
+
+        // Optional: Call displayNextName once initially if you want the first name to transition in
+        // displayNextName(); 
+    </script>
+</body>
+</html>
