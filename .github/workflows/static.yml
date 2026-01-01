@@ -1,0 +1,915 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber-Glow Developer Hub</title>
+    <!-- Google Fonts: 'Orbitron' for a futuristic feel, 'Inter' for readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Global Variables --- */
+        :root {
+            --dark-bg: #0d1a26;
+            --neon-blue: #00ffff;
+            --neon-purple: #8a2be2;
+            --neon-green: #00ff00;
+            --text-light: #e0e0e0;
+            --text-muted: #8899a8;
+        }
+
+        /* --- General Body & Page Container Styling --- */
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars */
+            height: 100vh; /* Full viewport height */
+            width: 100vw;  /* Full viewport width */
+            display: flex;
+            flex-direction: column;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-light);
+            background-color: var(--dark-bg);
+            position: relative;
+        }
+
+        /* --- Background Animation --- */
+        .background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 15% 50%, var(--neon-blue) 0%, transparent 20%),
+                        radial-gradient(circle at 85% 50%, var(--neon-purple) 0%, transparent 20%),
+                        linear-gradient(135deg, #0d1a26 0%, #1a2a3a 50%, #0d1a26 100%);
+            background-size: 400% 400%, 400% 400%, 400% 400%;
+            animation: backgroundFlow 30s ease infinite alternate;
+            z-index: 0;
+            opacity: 0.6; /* Slightly transparent to let the main dark bg show */
+        }
+
+        @keyframes backgroundFlow {
+            0% { background-position: 0% 50%, 0% 50%, 0% 0%; }
+            100% { background-position: 100% 50%, 100% 50%, 100% 100%; }
+        }
+
+        /* --- App Container for Main Content --- */
+        #app-container {
+            position: relative;
+            z-index: 1; /* Above background animation */
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Navigation Menu --- */
+        nav {            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.1em;
+            padding: 5px 0;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0;
+            height: 2px;
+            background-color: var(--neon-blue);
+            box-shadow: 0 0 5px var(--neon-blue);
+            transition: width 0.3s ease;
+        }
+        .nav-links a.active::after,
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none; /* Hidden by default on desktop */
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+            width: 30px;
+            height: 25px;
+        }
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--neon-blue);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        /* --- Page Sections (Common Styles) --- */
+        .page-section {
+            flex-grow: 1; /* Take up remaining vertical space */
+                      display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent overlay */
+            box-shadow: inset 0 0 50px rgba(0, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+            overflow-y: auto; /* Enable scrolling for content if needed */
+        }
+
+        .page-section.active-page {
+            display: flex;
+            opacity: 1;
+        }
+
+        .page-content-wrapper {
+            max-width: 700px;
+            width: 100%;
+            padding: 30px;
+            background-color: rgba(13, 26, 38, 0.85); /* Slightly lighter inner background */
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--neon-blue);
+        }
+        .page-section h1, .page-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green), 0 0 20px rgba(0, 255, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        .page-section p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        /* --- Forms (Login & Signup) --- */
+        .auth            background-color: rgba(0, 0, 0, 0.5);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-blue);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8em;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+            text-decoration: none;
+            transition: transform 0.2s ease;
+        }
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 1.1em;
+            padding: 5px 0;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-blue);
+            text-shadow: 0 0 8px var(--neon-blue);
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0;
+            height: 2px;
+            background-color: var(--neon-blue);
+            box-shadow: 0 0 5px var(--neon-blue);
+            transition: width 0.3s ease;
+        }
+        .nav-links a.active::after,
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none; /* Hidden by default on desktop */
+            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
+            width: 30px;
+            height: 25px;
+        }
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background-color: var(--neon-blue);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        /* --- Page Sections (Common Styles) --- */
+        .page-section {
+            flex-grow: 1; /* Take up remaining vertical space */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent overlay */
+            box-shadow: inset 0 0 50px rgba(0, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+            overflow-y: auto; /* Enable scrolling for content if needed */
+        }
+
+        .page-section.active-page {
+            display: flex;
+            opacity: 1;
+        }
+
+        .page-content-wrapper {
+            max-width: 700px;
+            width: 100%;
+            padding: 30px;
+            background-color: rgba(13, 26, 38, 0.85); /* Slightly lighter inner background */
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--neon-blue);
+        }
+        .page-section h1, .page-section h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green), 0 0 20px rgba(0, 255, 0, 0.5);
+            margin-bottom: 20px;
+        }
+        .page-section p {
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        /* --- Forms (Login & Signup) --- */
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            text-align: left;
+            margin-bottom: 5px;
+            color: var(--neon-blue);
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        .auth-form input[type="text"],
+        .auth-form input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            border: 1px solid var(--neon-blue);
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: var(--text-light);
+            font-size: 1em;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .auth-form input[type="text"]:focus,
+        .auth-form input[type="password"]:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green), 0 0 25px rgba(0, 255, 0, 0.4);
+        }
+
+        .auth-form button {
+            background-color: var(--neon-blue);
+            color: var(--dark-bg);
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 0 15px var(--neon-blue);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.1s ease;
+        }
+
+        .auth-form button:hover {
+            background-color: var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green), 0 0 30px rgba(0, 255, 0, 0.5);
+            transform: translateY(-2px);
+        }
+        .auth-form button:active {
+            transform: scale(0.98);
+        }
+
+        .toggle-auth {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+        .toggle-auth a {
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+        .toggle-auth a:hover {
+            color: var(--neon-green);
+        }
+
+        #authMessage {
+            margin-top: 15px;
+            color: var(--neon-green);
+            text-shadow: 0 0 8px var(--neon-green);
+            font-weight: bold;
+            display: none; /* Hidden by default */
+            font-size: 0.9em;
+        }
+        #authMessage.error {
+            color: var(--neon-purple);
+            text-shadow: 0 0 8px var(--neon-purple);
+        }
+        #authMessage.show {
+            display: block;
+        }
+
+        /* --- Dashboard Specifics --- */
+        #dashboard-page #welcomeMessage {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            color: var(--neon-blue);
+            text-shadow: 0 0 15px var(--neon-blue), 0 0 25px rgba(0, 255, 255, 0.4);
+            margin-bottom: 30px;
+        }
+        #dashboard-page .action-buttons button {
+            background-color: var(--neon-purple);
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+        #dashboard-page .action-buttons button:hover {
+            background-color: var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+        
+        /* --- Projects Page --- */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .project-card {background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--neon-blue);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+        }
+        .project-card h3 {
+            color: var(--neon-green);
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 0;
+            text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+        }
+        .project-card p {
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+        .project-card a {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+        .project-card a:hover {
+            color: var(--neon-green);
+        }
+
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            nav {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            .logo {
+                font-size: 1.5em;
+                width: 100%;
+                text-align: center;
+            }
+            .nav-links {
+                display: none; /* Hide by default */
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+                text-align: center;
+                background-color: rgba(0, 0, 0, 0.7);
+                padding: 10px 0;
+                margin-top: 10px;
+                border-top: 1px solid var(--neon-blue);
+            }
+            .nav-links.active {
+                display: flex; /* Show when active */
+            }
+            .nav-links a {
+                padding: 10px 0;
+            }
+            .hamburger {
+                display: flex; /* Show on mobile */
+                position: absolute;
+                right: 20px;
+                top: 20px;
+            }
+            .page-section {
+                padding: 20px;
+            }
+            .page-content-wrapper {
+                padding: 20px;
+            }
+            .page-section h1, .page-section h2 {
+                font-size: 1.8em;
+            }
+            #dashboard-page #welcomeMessage {
+                font-size: 1.5em;
+            }
+            .project-grid {
+                grid-template-columns: 1fr; /* Stack projects vertically */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-animation"></div>
+
+    <div id="app-container">
+        <!-- Navigation Menu -->
+        <nav>
+            <a href="#home" class="logo">Cyber-Glow Hub</a>
+            <div class="hamburger" id="hamburgerMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#dashboard" class="nav-link hidden-if-logged-out">Dashboard</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+                <li><a href="#login" class="nav-link login-link hidden-if-logged-in">Login</a></li>
+                <li><a href="#signup" class="nav-link signup-link hidden-if-logged-in">Signup</a></li>
+                <li><a href="#logout" class="nav-link logout-link hidden-if-logged-out">Logout\
+                    </a></li>
+            </ul>
+        </nav>
+
+        <!-- Page Sections -->
+        <section id="login-page" class="page-section">
+            <div class="page-content-wrapper">
+                <h2>Login</h2>
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginUsername">Username:</label>
+                        <input type="text" id="loginUsername" required placeholder="Enter your username">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password:</label>
+                        <input type="password" id="loginPassword" required placeholder="Enter your password">
+                    </div>
+                    <button type="submit">Login</button>
+                    <p class="toggle-auth">Don't have an account? <a href="#signup" class="nav-link">Sign up</a></p>
+                    <p id="loginMessage" class="auth-message"></p>
+                </form>
+            </div>
+        </section>
+
+        <section id="signup-page" class="page-section">
+            <div class="page-content-wrapper">
+                <h2>Sign Up</h2>
+                <form id="signupForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="signupUsername">Username:</label>
+                        <input type="text" id="signupUsername" required placeholder="Choose a username">
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password:</label>
+                        <input type="password" id="signupPassword" required placeholder="Choose a strong password">
+                    </div>
+                    <button type="submit">Sign Up</button>
+                    <p class="toggle-auth">Already have an account? <a href="#login" class="nav-link">Login</a></p>
+                    <p id="signupMessage" class="auth-message"></p>
+                </form>
+            </div>
+        </section>
+
+        <section id="dashboard-page" class="page-section">
+            <div class="page-content-wrapper">
+                <h2 id="welcomeMessage">Welcome, Developer!</h2>
+                <p>This is your personalized Cyber-Glow dashboard. Customize it with your projects, stats, and more!</p>
+                <div class="action-buttons" style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+                    <button onclick="alert('Feature under development!')">View Stats</button>
+                    <button onclick="alert('Feature under development!')">Edit Profile</button>
+                    <button id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="home-page" class="page-section active-page">
+            <div class="page-content-wrapper">
+                <h1>Welcome to the Cyber-Glow Hub</h1>
+                <p>Your portal to cutting-edge web development, powered by HTML, CSS, and JavaScript. Explore my projects, skills, and connect with me!</p>
+                <p>This site demonstrates a client-side "full-stack" experience using `localStorage` for user authentication. Try logging in or signing up!</p>
+                <button onclick="showPage('projects-page')" style="margin-top: 20px;">Explore Projects</button>
+            </div>
+        </section>
+
+        <section id="about-page" class="page-section">
+            <div class="page-content-wrapper">
+                <h2>About Me</h2>
+                <p>I am a passionate Full-Stack Developer with a keen interest in creating immersive and efficient web applications. My journey in development is driven by a desire to innovate and solve complex problems with elegant code.</p>
+                <p>Specializing in modern JavaScript frameworks, responsive design, and robust backend solutions, I strive to build applications that are not only functional but also deliver exceptional user experiences.</p>
+                <p>This "Cyber-Glow Hub" project is a demonstration of pure front-end capabilities, mimicking backend authentication using `localStorage` for an offline, full-stack feel.</p>
+            </div>
+        </section>
+
+        <section id="projects-page" class="page-section">
+            <div class="page-content-wrapper">
+                <h2>My Projects</h2>
+                <div class="project-grid">
+                    <div class="project-card">
+                        <h3>E-commerce Platform</h3>
+                        <p>A comprehensive online store with user authentication, product management, and secure checkout. Built with React, Node.js, Express, and MongoDB.</p>
+                        <a href="#">View Demo</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Real-time Chat App</h3>
+                        <p>An interactive chat application featuring instant messaging, user presence, and group chats. Developed using Vue.js and Socket.IO.</p>
+                        <a href="#">View Demo</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Task Management Tool</h3>
+                        <p>A simple yet powerful task manager with drag-and-drop functionality and local storage persistence. Pure HTML, CSS, and JavaScript.</p>
+                        <a href="#">View Demo</a>
+                    </div>
+                    <div class="project-card">
+                        <h3>Portfolio Website (This One!)</h3>
+                        <p>This very website! A single-page application demonstrating `localStorage` for offline user authentication and dynamic content. HTML, CSS, JS magic.</p>
+                        <a href="#">View Source</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact-page" class="page-section">
+            <div class="page-content-wrapper">
+                <h2>Contact Me</h2>
+                <p>Feel free to reach out for collaborations, project inquiries, or just to say hello!</p>
+                <p>Email: <a href="mailto:your.email@example.com" style="color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue);">your.email@example.com</a></p>
+                <p>LinkedIn: <a href="https://linkedin.com/in/yourprofile" target="_blank" style="color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue);">linkedin.com/in/yourprofile</a></p>
+                <p>GitHub: <a href="https://github.com/yourusername" target="_blank" style="color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue);">github.com/yourusername</a></p>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- DOM Elements ---
+        const navLinks = document.getElementById('navLinks');
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const allPages = document.querySelectorAll('.page-section');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const loginUsernameInput = document.getElementById('loginUsername');
+        const loginPasswordInput = document.getElementById('loginPassword');
+        const signupUsernameInput = document.getElementById('signupUsername');
+        const signupPasswordInput = document.getElementById('signupPassword');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const logoutButton = document.getElementById('logoutBtn');
+        const loginMessage = document.getElementById('loginMessage');
+        const signupMessage = document.getElementById('signupMessage');
+
+        // --- localStorage "Backend" Helper Functions ---
+        const LOCAL_STORAGE_USERS_KEY = 'cyberGlowHub_users';
+        const LOCAL_STORAGE_LOGGED_IN_USER_KEY = 'cyberGlowHub_loggedInUser';
+
+        function getUsers() {
+            try {
+                const usersJson = localStorage.getItem(LOCAL_STORAGE_USERS_KEY);
+                return usersJson ? JSON.parse(usersJson) : [];
+            } catch (e) {
+                console.error("Error reading users from localStorage:", e);
+                return [];
+            }
+        }
+
+        function saveUsers(users) {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_USERS_KEY, JSON.stringify(users));
+            } catch (e) {
+                console.error("Error writing users to localStorage:", e);
+            }
+        }
+
+        function findUser(username) {
+            const users = getUsers();
+            return users.find(u => u.username === username);
+        }
+
+        function authenticateUser(username, password) {
+            const user = findUser(username);
+            return user && user.password === password;
+        }
+
+        function setLoggedInUser(username) {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_LOGGED_IN_USER_KEY, username);
+            } catch (e) {
+                console.error("Error setting logged in user to localStorage:", e);
+            }
+        }
+
+        function getLoggedInUser() {
+            try {
+                return localStorage.getItem(LOCAL_STORAGE_LOGGED_IN_USER_KEY);
+            } catch (e) {
+                console.error("Error getting logged in user from localStorage:", e);
+                return null;
+            }
+        }
+
+        function clearLoggedInUser() {
+            try {
+                localStorage.removeItem(LOCAL_STORAGE_LOGGED_IN_USER_KEY);
+            } catch (e) {
+                console.error("Error clearing logged in user from localStorage:", e);
+            }
+        }
+
+        // --- UI Update & Navigation ---
+        function updateNavVisibility() {
+            const loggedInUser = getLoggedInUser();
+            const navLinksContainer = document.getElementById('navLinks'); // Get the ul element
+
+            navLinksContainer.querySelectorAll('.hidden-if-logged-out').forEach(link => {
+                link.style.display = loggedInUser ? 'block' : 'none';
+            });
+            navLinksContainer.querySelectorAll('.hidden-if-logged-in').forEach(link => {
+                link.style.display = loggedInUser ? 'none' : 'block';
+            });
+        }
+
+        function showAuthMessage(messageElement, message, isError = false) {
+            messageElement.textContent = message;
+            messageElement.classList.remove('error');
+            messageElement.classList.remove('show'); // Remove first to reset animation/display
+            if (isError) {
+                messageElement.classList.add('error');
+            }
+            messageElement.classList.add('show');
+            setTimeout(() => {
+                messageElement.classList.remove('show');
+            }, 3000); // Hide message after 3 seconds
+        }
+
+        function showPage(pageId) {
+            // Close mobile menu if open
+            if (navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+            }
+
+            allPages.forEach(page => {
+                page.classList.remove('active-page');
+            });
+
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+                // Use a timeout to allow for CSS transitions to apply opacity
+                setTimeout(() => {
+                    targetPage.classList.add('active-page');
+                }, 50); // Small delay
+            }
+            
+            // Update active link in navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            const activeLink = document.querySelector(`.nav-link[href="#${pageId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            updateNavVisibility(); // Ensure nav links are correct for logged-in/out state
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const loggedInUser = getLoggedInUser();
+            if (loggedInUser) {
+                welcomeMessage.textContent = `Welcome, ${loggedInUser}!`;
+                showPage('dashboard');
+            } else {
+                showPage('home'); // Or 'login' if you want to force login on start
+            }
+            updateNavVisibility(); // Initial nav state
+        });
+
+        // Navigation clicks
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = e.target.getAttribute('href').substring(1); // Remove '#'
+                if (pageId === 'logout') {
+                    clearLoggedInUser();
+                    welcomeMessage.textContent = 'Welcome, Developer!'; // Reset default message
+                    showPage('login'); // Redirect to login after logout
+                } else {
+                    showPage(pageId);
+                }
+            });
+        });
+
+        // Login Form Submission
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = loginUsernameInput.value.trim();
+            const password = loginPasswordInput.value.trim();
+
+            if (!username || !password) {
+                showAuthMessage(loginMessage, 'Please enter both username and password.', true);
+                return;
+            }
+
+            if (authenticateUser(username, password)) {
+                setLoggedInUser(username);
+                welcomeMessage.textContent = `Welcome, ${username}!`;
+                showAuthMessage(loginMessage, 'Login successful!', false);
+                loginUsernameInput.value = '';
+                loginPasswordInput.value = '';
+                showPage('dashboard');
+            } else {
+                showAuthMessage(loginMessage, 'Invalid username or password.', true);
+            }
+        });
+
+        // Signup Form Submission
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = signupUsernameInput.value.trim();
+            const password = signupPasswordInput.value.trim();
+
+            if (!username || !password) {
+                showAuthMessage(signupMessage, 'Please choose a username and password.', true);
+                return;
+            }
+
+            if (findUser(username)) {
+                showAuthMessage(signupMessage, 'Username already taken. Please choose another.', true);
+                return;
+            }
+
+            const users = getUsers();
+            users.push({ username, password });
+            saveUsers(users);
+            setLoggedInUser(username);
+            welcomeMessage.textContent = `Welcome, ${username}!`;
+            showAuthMessage(signupMessage, 'Account created and logged in!', false);
+            signupUsernameInput.value = '';
+            signupPasswordInput.value = '';
+            showPage('dashboard');
+        });
+
+        // Dashboard Logout Button
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => {
+                clearLoggedInUser();
+                welcomeMessage.textContent = 'Welcome, Developer!'; // Reset default message
+                showPage('login'); // Redirect to login after logout
+            });
+        }
+
+        // Hamburger Menu Toggle
+        hamburgerMenu.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
